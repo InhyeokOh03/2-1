@@ -1,3 +1,3 @@
 # 2-1
-This is my personal practices  
+These are my personal practices.  
 sophomore, DGIST, spring season
