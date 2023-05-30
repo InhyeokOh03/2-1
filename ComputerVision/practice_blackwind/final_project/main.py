@@ -6,7 +6,6 @@ import re
 from functions import _main
 # =============================
 meanp = np.loadtxt('result.txt', delimiter=',')
-meanp = meanp.flatten()
 
 while True:
     # =======================
@@ -18,7 +17,7 @@ while True:
         pass    
     obj = obj + name + ".png"
     # =======================
-    df, decide = mdc(_main(obj).flatten(), meanp.reshape)
+    df, decide = mdc(_main(obj).flatten(), meanp)
     if decide == 1:
         decide = 'Seonbin'
     else:
