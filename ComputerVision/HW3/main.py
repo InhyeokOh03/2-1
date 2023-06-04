@@ -148,7 +148,7 @@ for i, no in enumerate(findImages):
     cv2.Rodrigues(rvec,R)
     W[0:3,0:3] = R
     W[0:3,3:4] = tvec # np.reshape(tvec,(3,1))
-    # print(f'{no}th Extrinsic matrix W:\n{W}')
+    print(f'{no}th Extrinsic matrix W:\n{W}')
     np.savetxt(directory + "\Cal_extrinsic"+str(no)+".txt", W, fmt='%.2f')  # extrinsic matrix 저장
 
 print("===========================================")
@@ -180,13 +180,14 @@ for i, no in enumerate(findImages):
 
     # 유클리드 거리 계산
     distance = np.linalg.norm(position - reference_position)
+    _calculated_distance = float(distance) / 291 * 10
     distances.append(distance)
 
     degree = round(abs(orientations_degrees[i][1]), 2)
     real_degree = real_degrees[i]
     
     print(f"{no}th Image - X: {position[0][0]}, Y: {position[1][0]}, Z: {position[2][0]}")
-    print(f"{no}th Image - Distance from Reference: {distance}")
+    print(f"{no}th Image - Distance from Reference: about {int(_calculated_distance)}cm")
     print(f"{no}th Image - Orientation (degrees): {degree}°")
     if real_degree == 0:
         print(f"{no}th Image's real degree is 0, and the error is {degree}\n")
@@ -214,5 +215,5 @@ for i, objpoint in enumerate(objpoints):
 
 mean_error = np.mean(reprojection_errors)
 
-print(f"Mean reprojection error: {mean_error * 100} %") # 이게 뭐임?
+print(f"Mean reprojection error: {mean_error * 100} %") # ?
 
