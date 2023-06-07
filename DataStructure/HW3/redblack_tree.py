@@ -26,6 +26,7 @@ class RedBlackTree():
     def search(self, element):
         ## IMPLEMENT
         node = self._root
+        # search element and return
         while node is not None:
             if element < node._element:
                 node = node._left
@@ -38,8 +39,10 @@ class RedBlackTree():
     def insert(self, element):
         ## IMPLEMENT
         node = self._Node(element)
+        # If the tree is empty, the node will be root.
         if self._root is None:
             self._root = node
+        # Find the place where the element comes in.
         else:
             parent_node = None
             current_node = self._root
@@ -63,7 +66,7 @@ class RedBlackTree():
             return
 
         if node._left is not None and node._right is not None:
-            # Case 1: Node has two children
+            # Case 1 : node has two children
             successor = self._successor(node)
             node._element = successor._element
             node = successor
@@ -74,9 +77,11 @@ class RedBlackTree():
             self._replace_node(node, leaf)
         else:
             if leaf is not None and leaf._color == self._Node.RED:
+                # Case 2 : node is BLACK, and non-leaf child is RED
                 leaf._color = self._Node.BLACK
                 self._replace_node(node, leaf)
             else:
+                # Case 3 : node is BLACK, and both children are BLACK or None
                 self._delete_case1(node)
                 self._replace_node(node, leaf)
 
@@ -92,6 +97,7 @@ class RedBlackTree():
             node._parent != None):
             return True
     
+    # Case 1 : node has no parent
     def _delete_case1(self, node):
         if node is None:
             return
@@ -101,9 +107,9 @@ class RedBlackTree():
         else:
             self._root = node
    
-    
+    # Case 2 : sibling is RED
     def _delete_case2(self, node):
-        sibling = self._sibiling(node)
+        sibling = self._sibling(node)
         if sibling._color == self._Node.RED:
             node._parent._color = self._Node.RED
             sibling._color = self._Node.BLACK
@@ -114,8 +120,9 @@ class RedBlackTree():
 
         self._delete_case3(node)
         
+    # Case 3 : parent, sibling, and sibling's children are BLACK
     def _delete_case3(self, node):
-        sibling = self._sibiling(node)
+        sibling = self._sibling(node)
         if (node._parent._color == self._Node.BLACK and
             sibling._color == self._Node.BLACK and
             self._is_black(sibling._left) and
@@ -124,9 +131,10 @@ class RedBlackTree():
             self._delete_case1(node._parent)
         else:
             self._delete_case4(node)
-        
+    
+    # Case 4 : parent is RED, and sibling and sibling's children are BLACK
     def _delete_case4(self, node):
-        sibling = self._sibiling(node)
+        sibling = self._sibling(node)
         if (node._parent._color == self._Node.RED and
             sibling._color == self._Node.BLACK and
             self._is_black(sibling._left) and
@@ -136,8 +144,9 @@ class RedBlackTree():
         else:
             self._delete_case5(node)
     
+    # Case 5 : sibling us BLACK and has at least one RED child
     def _delete_case5(self, node):
-        sibling = self._sibiling(node)
+        sibling = self._sibling(node)
         if sibling._color == self._Node.BLACK:
             if (node == node._parent._left and
                 self._is_black(sibling._right) and
@@ -153,9 +162,10 @@ class RedBlackTree():
                 self._rotate_left(sibling)
 
         self._delete_case6(node)
-        
+    
+    # Case 6 : adjust colors, and Do rotate for balance
     def _delete_case6(self, node):
-        sibling = self._sibiling(node)
+        sibling = self._sibling(node)
         sibling._color = node._parent._color
         node._parent._color = self._Node.BLACK
 
@@ -166,6 +176,7 @@ class RedBlackTree():
             sibling._left._color = self._Node.BLACK
             self._rotate_right(node._parent)
             
+    # Replace a node with its child
     def _replace_node(self, node, child):
         if child is not None:
             child._parent = node._parent
@@ -180,34 +191,31 @@ class RedBlackTree():
 
         node._parent = None
 
-            
-    def delete_one_child(self, node):
-        child = node._left if self.is_leaf(node._right) else node._right
-
-        self._replace_node(node, child)
-        if node._color == self._Node.BLACK:
-            if child._color == self._Node.RED:
-                child._color = self._Node.BLACK
-            else:
-                self._delete_case1(child)
-
     def _fix_insert(self, node):
+        # Until node is not root, and node's color is RED.
         while node != self._root and node._parent._color == self._Node.RED:
             if node._parent == node._parent._parent._right:
                 uncle = node._parent._parent._left
                 if uncle and uncle._color == self._Node.RED:
+                    # Case 1 : uncle node exists, and both uncle and parent is RED
+                    # Both uncle and parent will be BLACK and parent's parent becomes RED.
                     node._parent._color = self._Node.BLACK
                     uncle._color = self._Node.BLACK
                     node._parent._parent._color = self._Node.RED
                     node = node._parent._parent
                 else:
                     if node == node._parent._left:
+                        # Case 2 : uncle node is BLACK, node is parent's left
+                        # Change the parent node to the current node, and do right rotation
                         node = node._parent
                         self._rotate_right(node)
+                    # Case 3 : uncle is BLACK, and the node is parent's right
+                    # Parent node will be BLACK, parent's parent node will be RED, and do left rotation
                     node._parent._color = self._Node.BLACK
                     node._parent._parent._color = self._Node.RED
                     self._rotate_left(node._parent._parent)
             else:
+                # If the parent is the parent's parent 's left (symmetric to the above cases)
                 uncle = node._parent._parent._right
                 if uncle and uncle._color == self._Node.RED:
                     node._parent._color = self._Node.BLACK
@@ -227,18 +235,22 @@ class RedBlackTree():
         return node == None or node._color == self._Node.BLACK
 
     def _successor(self, node):
+        # Get successor
         successor = node._right
         while successor._left != None:
             successor = successor._left
         return successor
 
-    def _sibiling(self, node):
+    def _sibling(self, node):
+        # Get sibling
         parent = node._parent
 
         if parent._left == node:
             return parent._right
         else:
             return parent._left
+    
+    # Rotation functions-----------------
     def _rotate_left(self, node):
         y = node._right
         node._right = y._left
@@ -268,6 +280,7 @@ class RedBlackTree():
             node._parent._left = y
         y._right = node
         node._parent = y
+    #------------------------------------------
 
     # Supporting functions -- DO NOT MODIFY BELOW
     def display(self):
